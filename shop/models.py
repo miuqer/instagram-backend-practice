@@ -56,3 +56,16 @@ class MyUser(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return self.is_admin
+class Post(models.Model):
+  author = models.ForeignKey(
+      MyUser, on_delete=models.CASCADE, related_name='posts'
+  )
+  image = models.ImageField(upload_to='posts/')
+  caption = models.TextField(blank=True)
+  created_at = models.DateTimeField(auto_now_add=True)
+
+  class Meta:
+    ordering = ['-created_at']
+
+  def __str__(self):
+    return f'{self.author.username} - {self.created_at.strftime("%Y-%m-%d")}'

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ایجاد پست جدید • اینستاگرام</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/misc/Farsi-Digits/font-face.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn FD', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #000000;
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background-color: #121212;
+            border: 1px solid #262626;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid #262626;
+        }
+
+        .card-header h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            flex: 1;
+        }
+
+        .back-link {
+            color: #a8a8a8;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #ffffff;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        .alert-box {
+            background-color: rgba(237, 73, 86, 0.15);
+            color: #ed4956;
+            border: 1px solid #ed4956;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            margin-bottom: 18px;
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.86rem;
+            color: #cfcfcf;
+        }
+
+        .upload-dropzone {
+            border: 2px dashed #363636;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            background-color: #1a1a1a;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .upload-dropzone:hover {
+            border-color: #737373;
+        }
+
+        .dropzone-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .dropzone-text {
+            color: #a8a8a8;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+
+        .upload-dropzone input[type="file"] {
+            display: none;
+        }
+
+        .btn-choose {
+            background-color: #0095f6;
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .caption-wrapper textarea {
+            width: 100%;
+            min-height: 110px;
+            padding: 12px;
+            background-color: #1a1a1a;
+            border: 1px solid #363636;
+            border-radius: 6px;
+            color: #fafafa;
+            font-size: 0.88rem;
+            outline: none;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+
+        .caption-wrapper textarea:focus {
+            border-color: #737373;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 10px;
+            background-color: #0095f6;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #1877f2;
+        }
+
+        .selected-file-name {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #22c55e;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="modal-card">
+        <header class="card-header">
+            <a href="{% url 'shop:index' %}" class="back-link">انصراف</a>
+            <h2>ایجاد پست جدید</h2>
+            <div style="width: 45px;"></div>
+        </header>
+
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-box">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label>تصویر پست</label>
+                    <label class="upload-dropzone" for="image-upload">
+                        <div class="dropzone-icon">🖼️</div>
+                        <p class="dropzone-text">تصویر مورد نظر خود را انتخاب کنید</p>
+                        <span class="btn-choose">انتخاب فایل</span>
+                        <input type="file" id="image-upload" name="image" accept="image/*" required onchange="showFileName(this)">
+                        <div id="file-name-display" class="selected-file-name"></div>
+                    </label>
+                </div>
+
+                <div class="form-group caption-wrapper">
+                    <label for="caption">کپشن (اختیاری)</label>
+                    <textarea id="caption" name="caption" placeholder="یک کپشن بنویسید..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">اشتراک‌گذاری</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showFileName(input) {
+            const display = document.getElementById('file-name-display');
+            if (input.files && input.files[0]) {
+                display.innerText = 'فایل انتخاب شد: ' + input.files[0].name;
+            } else {
+                display.innerText = '';
+            }
+        }
+    </script>
+</body>
+</html>

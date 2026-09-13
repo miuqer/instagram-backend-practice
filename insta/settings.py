@@ -116,13 +116,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
 MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+        'default': {
+                'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',            
+                'OPTIONS' :{
+                'host' : 'smtp.gmail.com',
+                'port' : 587 ,
+                'use_tls' : True,
+                'username' : 'spideronly22@gmail.com',
+                'password' : 'dhkbhrdawykpboxi'
+            }
+        },
+    }
+DEFAULT_FROM_EMAIL = "اینستاگرام <spideronly22@gmail.com>"
