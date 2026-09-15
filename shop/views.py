@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from .models import MyUser,Post
+from .models import MyUser,Post,Profile
 
 
 def index(request):
@@ -180,4 +180,62 @@ def create_post(request):
     return redirect('shop:index')
 
   return render(request, 'shop/create_post.html')
+from django.contrib import messages
+from django.shortcuts import redirect, render
+from .models import MyUser, Profile
 
+
+def profile(request):
+  if not request.user.is_authenticated:
+    return redirect('shop:login')
+
+  profile, _ = Profile.objects.get_or_create(user=request.user)
+
+  if request.method == 'POST':
+    email_input = request.POST.get('email', '').strip()
+    phone_input = request.POST.get('phone_number', '').strip()
+    full_name_input = request.POST.get('full_name', '').strip()
+    bio_input = request.POST.get('bio', '').strip()
+    avatar_file = request.FILES.get('avatar')
+
+    # ۱. بررسی تکراری نبودن شماره با فیلد phone_number
+    if (
+        phone_input
+        and MyUser.objects.filter(phone_number=phone_input)
+        .exclude(id=request.user.id)
+        .exists()
+    ):
+      messages.error(request, 'این شماره تماس متعلق به حساب دیگری است.')
+      return render(request, 'shop/profile.html')
+
+    # ۲. بررسی تکراری نبودن ایمیل
+    if (
+        email_input
+        and MyUser.objects.filter(email=email_input)
+        .exclude(id=request.user.id)
+        .exists()
+    ):
+      messages.error(request, 'این آدرس ایمیل متعلق به حساب دیگری است.')
+      return render(request, 'shop/profile.html')
+
+    # ۳. ذخیره فیلدهای MyUser
+    user = request.user
+    if email_input:
+      user.email = email_input
+    if phone_input:
+      user.phone_number = phone_input 
+    user.save()
+
+    # ۴. ذخیره فیلدهای Profile
+    if full_name_input:
+      profile.full_name = full_name_input
+    if bio_input:
+      profile.bio = bio_input
+    if avatar_file:
+      profile.avatar = avatar_file
+    profile.save()
+
+    messages.success(request, 'پروفایل شما با موفقیت به‌روزرسانی شد.')
+    return redirect('shop:profile')
+
+  return render(request, 'shop/profile.html')

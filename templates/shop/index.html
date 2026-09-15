@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -102,6 +103,8 @@
             gap: 6px;
             cursor: pointer;
             flex-shrink: 0;
+            text-decoration: none;
+            color: #f5f5f5;
         }
 
         .story-ring {
@@ -125,6 +128,13 @@
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
+            overflow: hidden;
+        }
+
+        .story-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .story-username {
@@ -166,6 +176,14 @@
             align-items: center;
             justify-content: center;
             font-size: 0.9rem;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .avatar-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .post-username {
@@ -208,6 +226,12 @@
             border: none;
             color: #f5f5f5;
             cursor: pointer;
+            font-size: 1.25rem;
+            transition: transform 0.1s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
         }
 
         .post-body {
@@ -229,14 +253,6 @@
         .caption-username {
             font-weight: 600;
             margin-left: 6px;
-        }
-
-        .comments-link {
-            color: #737373;
-            font-size: 0.82rem;
-            text-decoration: none;
-            display: block;
-            margin-bottom: 6px;
         }
 
         .post-date {
@@ -295,6 +311,10 @@
             font-weight: 600;
             text-decoration: none;
         }
+
+        .btn-switch:hover {
+            color: #ffffff;
+        }
     </style>
 </head>
 <body>
@@ -309,8 +329,10 @@
                     <li class="nav-item"><a href="#">🔍 جستجو</a></li>
                     <li class="nav-item"><a href="#">🧭 کاوش</a></li>
                     <li class="nav-item"><a href="#">💬 پیام‌ها</a></li>
-                    <li class="nav-item"><a href="{% url 'shop:create_post' %}">➕ ایجاد پست</a></li>
-                    <li class="nav-item"><a href="#">👤 نمایه</a></li>
+                    <li class="nav-item"><a href="{% url "shop:create_post" %}">➕ ایجاد پست</a></li>
+                    <li class="nav-item">
+                        <a href="{% url 'shop:profile' %}">👤 نمایه</a>
+                    </li>
                 </ul>
             </div>
             <div class="nav-item">
@@ -326,6 +348,21 @@
         <main class="feed-container">
             <!-- نوار استوری -->
             <div class="stories-bar">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'shop:profile' %}" class="story-item">
+                        <div class="story-ring">
+                            <div class="story-avatar">
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                                {% else %}
+                                    👤
+                                {% endif %}
+                            </div>
+                        </div>
+                        <span class="story-username">استوری شما</span>
+                    </a>
+                {% endif %}
+
                 <div class="story-item">
                     <div class="story-ring">
                         <div class="story-avatar">👤</div>
@@ -350,11 +387,17 @@
             {% for post in posts %}
                 <article class="post-card">
                     <header class="post-header">
-                        <a href="#" class="post-user">
-                            <div class="avatar-small">👤</div>
+                        <div class="post-user">
+                            <div class="avatar-small">
+                                {% if post.author.profile.avatar %}
+                                    <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}">
+                                {% else %}
+                                    👤
+                                {% endif %}
+                            </div>
                             <span class="post-username">{{ post.author.username }}</span>
-                        </a>
-                        <span>•••</span>
+                        </div>
+                        <span style="cursor: pointer;">•••</span>
                     </header>
 
                     <div class="post-media">
@@ -396,18 +439,30 @@
             {% endfor %}
         </main>
 
-        <!-- بخش پیشنهادات و پروفایل کاربر -->
+        <!-- بخش پیشنهادات و پروفایل کاربر لاگین‌شده -->
         <aside class="sidebar-right">
             <div class="current-user-card">
                 <div class="user-meta">
-                    <div class="avatar-small">👤</div>
+                    <div class="avatar-small">
+                        {% if user.is_authenticated and user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                        {% else %}
+                            👤
+                        {% endif %}
+                    </div>
                     <div class="user-text">
                         <h4>{{ user.username|default:"کاربر مهمان" }}</h4>
-                        <span>{{ user.email|default:"وارد حساب شوید" }}</span>
+                        <span>
+                            {% if user.is_authenticated %}
+                                {{ user.profile.full_name|default:user.email }}
+                            {% else %}
+                                وارد حساب شوید
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'shop:logout' %}" class="btn-switch" style="color: #ed4956;">خروج</a>
+                    <a href="{% url 'shop:profile' %}" class="btn-switch">ویرایش</a>
                 {% else %}
                     <a href="{% url 'shop:login' %}" class="btn-switch">ورود</a>
                 {% endif %}
