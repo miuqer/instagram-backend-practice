@@ -26,4 +26,5 @@ urlpatterns = [
         views.password_reset_confirm_view,
         name='password_reset_confirm',
     ),
+    path('post/<int:post_id>/like/', views.like_post, name='like_post'),
 ]

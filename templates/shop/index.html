@@ -216,8 +216,10 @@
             font-size: 1.3rem;
         }
 
+        /* <!-- [EDIT]: چیدمان یکدست با Flexbox برای هم‌تراز شدن فرم لایک با دکمه‌های کامنت و شیر --> */
         .actions-left {
             display: flex;
+            align-items: center;
             gap: 14px;
         }
 
@@ -228,6 +230,11 @@
             cursor: pointer;
             font-size: 1.25rem;
             transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 1;
         }
 
         .action-btn:hover {
@@ -320,7 +327,7 @@
 <body>
 
     <div class="layout-container">
-        <!-- منوی سمت راست -->
+        <!-- منوی سایدبار -->
         <aside class="sidebar">
             <div>
                 <h1 class="brand-logo">Instagram</h1>
@@ -329,7 +336,10 @@
                     <li class="nav-item"><a href="#">🔍 جستجو</a></li>
                     <li class="nav-item"><a href="#">🧭 کاوش</a></li>
                     <li class="nav-item"><a href="#">💬 پیام‌ها</a></li>
-                    <li class="nav-item"><a href="{% url "shop:create_post" %}">➕ ایجاد پست</a></li>
+                    
+                    <!-- [EDIT]: اصلاح دابل کوتیشن‌های تگ به سینگل کوتیشن استاندارد -->
+                    <li class="nav-item"><a href="{% url 'shop:create_post' %}">➕ ایجاد پست</a></li>
+                    
                     <li class="nav-item">
                         <a href="{% url 'shop:profile' %}">👤 نمایه</a>
                     </li>
@@ -344,7 +354,7 @@
             </div>
         </aside>
 
-        <!-- فید میانی (استوری و پست‌ها) -->
+        <!-- فید میانی -->
         <main class="feed-container">
             <!-- نوار استوری -->
             <div class="stories-bar">
@@ -410,7 +420,17 @@
 
                     <div class="post-actions">
                         <div class="actions-left">
-                            <button class="action-btn">🤍</button>
+                            <!-- [EDIT]: اصلاح استایل فرم لایک به inline-flex و حذف مارجین اضافی -->
+                            <form action="{% url 'shop:like_post' post.id %}" method="POST" style="display: inline-flex; margin: 0; padding: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="action-btn">
+                                    {% if request.user in post.likes.all %}
+                                        ❤️
+                                    {% else %}
+                                        🤍
+                                    {% endif %}
+                                </button>
+                            </form>
                             <button class="action-btn">💬</button>
                             <button class="action-btn">🚀</button>
                         </div>
@@ -418,8 +438,9 @@
                     </div>
 
                     <div class="post-body">
+                        <!-- [EDIT]: شمارش تعداد لایک‌ها از طریق متد اختصاصی total_likes یا count -->
                         {% if post.likes.exists %}
-                            <div class="likes-count">{{ post.likes.count }} پسند</div>
+                            <div class="likes-count">{{ post.total_likes|default:post.likes.count }} پسند</div>
                         {% endif %}
 
                         {% if post.caption %}
@@ -439,7 +460,7 @@
             {% endfor %}
         </main>
 
-        <!-- بخش پیشنهادات و پروفایل کاربر لاگین‌شده -->
+        <!-- سایدبار پروفایل و سوییچ اکانت -->
         <aside class="sidebar-right">
             <div class="current-user-card">
                 <div class="user-meta">

@@ -77,9 +77,15 @@ class Post(models.Model):
   image = models.ImageField(upload_to='posts/')
   caption = models.TextField(blank=True)
   created_at = models.DateTimeField(auto_now_add=True)
+  likes = models.ManyToManyField(
+      'MyUser', related_name='liked_posts', blank=True)
 
   class Meta:
     ordering = ['-created_at']
 
+
   def __str__(self):
     return f'{self.author.username} - {self.created_at.strftime("%Y-%m-%d")}'
+  def total_like(self):
+      return self .likes.count()
+  
